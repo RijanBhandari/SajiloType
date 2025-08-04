@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Script to Doc Flow</string>
+    <string name="title_activity_main">Script to Doc Flow</string>
+    <string name="package_name">com.scripttodoc.app</string>
+    <string name="custom_url_scheme">com.scripttodoc.app</string>
+</resources>
