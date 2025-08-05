@@ -1,32 +1,39 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ExternalLink, Eye, EyeOff } from 'lucide-react';
-import { setApiKey } from '@/lib/apiKey';
-import { useToast } from '@/components/ui/use-toast';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye, EyeOff, Key, ExternalLink } from "lucide-react";
+import { getApiKey, setApiKey } from "@/lib/apiKey";
+import { useToast } from "@/components/ui/use-toast";
 
-interface ApiKeyPromptProps {
-  open: boolean;
-  onClose: () => void;
+interface ApiKeySetupProps {
+  onApiKeySet: () => void;
 }
 
-export const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ open, onClose }) => {
-  const [apiKey, setApiKeyValue] = useState('');
+const ApiKeySetup = ({ onApiKeySet }: ApiKeySetupProps) => {
+  const [apiKey, setApiKeyInput] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSave = async () => {
+  useEffect(() => {
+    checkExistingApiKey();
+  }, []);
+
+  const checkExistingApiKey = async () => {
+    try {
+      const existingKey = await getApiKey();
+      if (existingKey) {
+        onApiKeySet();
+      }
+    } catch (error) {
+      console.error("Error checking API key:", error);
+    }
+  };
+
+  const handleSaveApiKey = async () => {
     if (!apiKey.trim()) {
       toast({
         title: "Error",
@@ -43,7 +50,7 @@ export const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ open, onClose }) => 
         title: "Success",
         description: "API key saved successfully!",
       });
-      onClose();
+      onApiKeySet();
     } catch (error) {
       toast({
         title: "Error",
@@ -56,19 +63,20 @@ export const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ open, onClose }) => 
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Setup Required</DialogTitle>
-          <DialogDescription>
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 flex items-center justify-center p-6">
+      <Card className="w-full max-w-md p-6 bg-gradient-card shadow-card border-0">
+        <div className="text-center mb-6">
+          <Key className="h-12 w-12 mx-auto mb-4 text-primary" />
+          <h2 className="text-2xl font-bold mb-2">Setup Required</h2>
+          <p className="text-muted-foreground">
             To use OCR functionality, you need to provide a Gemini AI API key
-          </DialogDescription>
-        </DialogHeader>
-        
-        <Alert className="mb-4">
+          </p>
+        </div>
+
+        <Alert className="mb-6">
           <AlertDescription>
             <div className="space-y-2">
-              <p className="font-medium">To get your free Gemini API key:</p>
+              <p>To get your free Gemini API key:</p>
               <ol className="list-decimal list-inside space-y-1 text-sm">
                 <li>Visit Google AI Studio</li>
                 <li>Sign in with your Google account</li>
@@ -88,13 +96,13 @@ export const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ open, onClose }) => 
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="api-key">Gemini API Key</Label>
+            <Label htmlFor="apiKey">Gemini API Key</Label>
             <div className="relative">
               <Input
-                id="api-key"
+                id="apiKey"
                 type={showApiKey ? "text" : "password"}
                 value={apiKey}
-                onChange={(e) => setApiKeyValue(e.target.value)}
+                onChange={(e) => setApiKeyInput(e.target.value)}
                 placeholder="Enter your Gemini API key"
                 className="pr-10"
               />
@@ -113,22 +121,25 @@ export const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ open, onClose }) => 
               </Button>
             </div>
           </div>
-        </div>
-        
-        <DialogFooter>
+
           <Button
-            onClick={handleSave}
+            onClick={handleSaveApiKey}
             disabled={isLoading || !apiKey.trim()}
             className="w-full"
+            size="lg"
           >
             {isLoading ? "Saving..." : "Save API Key"}
           </Button>
-        </DialogFooter>
-        
-        <p className="text-xs text-muted-foreground text-center mt-2">
-          Your API key is stored securely on your device and never shared
-        </p>
-      </DialogContent>
-    </Dialog>
+        </div>
+
+        <div className="mt-6 text-center">
+          <p className="text-xs text-muted-foreground">
+            Your API key is stored securely on your device and never shared
+          </p>
+        </div>
+      </Card>
+    </div>
   );
 };
+
+export default ApiKeySetup;

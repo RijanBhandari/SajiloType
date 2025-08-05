@@ -96,19 +96,25 @@ const BatchMode = () => {
     toast({ title: "Batch Processing Complete", description: "All images have been processed." });
   };
   
-  const handleSave = async () => {
+  const handleSendToPC = async () => {
     if (!combinedTranscript) return;
     try {
-      const fileName = `batch-transcript-${Date.now()}.txt`;
-      await Filesystem.writeFile({
-        path: fileName,
-        data: combinedTranscript,
-        directory: Directory.Documents,
-        encoding: Encoding.UTF8,
+      const response = await fetch('http://YOUR_LAPTOP_IP:5000/type', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: combinedTranscript }),
       });
-      toast({ title: "Saved!", description: "Transcript saved to Documents folder." });
-    } catch (e) {
-      toast({ title: "Save Failed", description: "Could not save the transcript.", variant: "destructive" });
+
+      if (response.ok) {
+        toast({ title: "Sent to PC!", description: "Transcript sent to your laptop's keyboard." });
+      } else {
+        const errorData = await response.json();
+        toast({ title: "Send Failed", description: `Could not send to PC: ${errorData.error || response.statusText}`, variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Send Failed", description: `Network error: ${e.message}`, variant: "destructive" });
     }
   };
 
@@ -189,7 +195,7 @@ const BatchMode = () => {
                 <h3 className="font-semibold text-lg mb-2 text-center">Combined Transcript</h3>
                 <Textarea value={combinedTranscript} readOnly rows={15} className="bg-background/50" />
                 <div className="flex gap-2 mt-4">
-                    <Button onClick={handleSave} className="w-full"><Save className="h-4 w-4 mr-2" />Save</Button>
+                    <Button onClick={handleSendToPC} className="w-full">Send to PC</Button>
                     <Button onClick={handleShare} className="w-full"><Share2 className="h-4 w-4 mr-2" />Share</Button>
                 </div>
                 <Button onClick={() => { setImages([]); setCombinedTranscript(null); }} variant="outline" className="w-full mt-4">

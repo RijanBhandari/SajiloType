@@ -6,6 +6,25 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https'
+  },
+  android: {
+    allowMixedContent: true,
+    captureInput: true,
+    webContentsDebuggingEnabled: false
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: '#ffffff',
+      showSpinner: true,
+      spinnerColor: '#000000'
+    },
+    Camera: {
+      permissions: ['camera', 'photos']
+    },
+    Filesystem: {
+      permissions: ['storage']
+    }
   }
 };
 

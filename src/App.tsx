@@ -3,10 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
 import BatchMode from "./pages/BatchMode";
-import SingleMode from "./pages/SingleMode";
-import BatchProgress from "./pages/BatchProgress";
 import NotFound from "./pages/NotFound";
 import { useEffect, useState } from "react";
 import { getApiKey } from "./lib/apiKey";
@@ -52,9 +49,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/batch" element={<BatchMode />} />
-            <Route path="/single" element={<SingleMode />} />
+            <Route path="/" element={<BatchMode />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
